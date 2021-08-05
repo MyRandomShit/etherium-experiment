@@ -25,15 +25,9 @@ Parameters:
   InstanceType:
     Type: String
     AllowedValues:
-    ## The commented-out are not worth it - too slow for the price
-    #- g3s.xlarge    # 1 GPU Tesla M60
-    #- g3.8xlarge    # 2 GPU Tesla M60
     - g4dn.xlarge   # 1 GPU Tesla T4 -- best value (cost/performance)
     - g4dn.2xlarge  # 1 GPU Tesla T4
     - g4dn.12xlarge # 4 GPU Tesla T4
-    #- p2.xlarge     # 1 GPU Tesla K80
-    #- p2.8xlarge    # 8 GPU Tesla K80
-    #- p2.16xlarge   # 16 GPU Tesla K80
     - p3.2xlarge    # 1 GPU Tesla V100
     - p3.8xlarge    # 4 GPU Tesla V100
     - p3.16xlarge   # 8 GPU Tesla V100
@@ -49,6 +43,16 @@ Parameters:
     Description: Ethereum Wallet Address
     Default: "0x834112E5A3adEc466d60e67468EE3D061F3F0139"
     AllowedPattern: "0x[0-9a-fA-F]+"
+
+  EthMinerGroup:
+    Type: String
+    Description: Miner Group
+    AllowedValues:
+    - us1 
+    - us2 
+    - eu1 
+    - asia1
+    Default: us1
 
   VpcId:
     Description: The VPC where this stack will be deployed
@@ -88,9 +92,9 @@ Mappings:
     us-east-1:
       ImageId: ami-0b70285e5215b80eb
     us-east-2:
-      ImageId: ami-01bd6a1621a6968d7
+      ImageId: ami-028dbc12531690cf4
     us-west-1:
-      ImageId: ami-05fbe06ba1b862ef6
+      ImageId: ami-03e47fb064fd84d8a
     us-west-2:
       ImageId: ami-0bc87a16c757a7f07
 
@@ -158,9 +162,8 @@ Resources:
                 cd bin
                 cat > runner.sh << __EOF__
                 #!/bin/bash -x
-                SERVERS=(us1 us2 eu1 asia1)
                 while (true); do
-                  ./ethminer -G -P stratum1+tcp://0x834112E5A3adEc466d60e67468EE3D061F3F0139.${!INSTANCE_ID}-${!AZ_ID}@us1.ethermine.org:4444
+                  ./ethminer -G -P stratum1+tcp://${EthWallet}.${!INSTANCE_ID}-${!AZ_ID}@${EthMinerGroup}.ethermine.org:4444
                 done
                 __EOF__
                 chmod +x runner.sh
