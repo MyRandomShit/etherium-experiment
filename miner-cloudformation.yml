@@ -36,7 +36,7 @@ Parameters:
   InstanceCount:
     Type: Number
     Default: 5
-    MaxValue: 10
+    MaxValue: 20
 
   EthWallet:
     Type: String
@@ -90,13 +90,16 @@ Mappings:
     sa-east-1:
       ImageId: ami-048837a0bfc1ba1a6
     us-east-1:
-      ImageId: ami-0b70285e5215b80eb
+      #ImageId: ami-0b70285e5215b80eb
+      ImageId: ami-08bac08a82fda32aa
     us-east-2:
-      ImageId: ami-028dbc12531690cf4
+      #ImageId: ami-028dbc12531690cf4
+      ImageId: ami-0c9f4e1c88a722558
     us-west-1:
       ImageId: ami-03e47fb064fd84d8a
     us-west-2:
-      ImageId: ami-0bc87a16c757a7f07
+      #ImageId: ami-0bc87a16c757a7f07
+      ImageId: ami-0cbd7106de45aa1d0
 
   SpotPriceMap:
     g4dn.xlarge:
@@ -154,12 +157,9 @@ Resources:
           'Fn::Base64':
             'Fn::Sub': |
                 #!/bin/bash -x
-                cd /tmp
                 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id | cut -b-8)
                 AZ_ID=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone-id)
-                wget -O miner.tar.gz https://github.com/ethereum-mining/ethminer/releases/download/v0.18.0/ethminer-0.18.0-cuda-9-linux-x86_64.tar.gz
-                tar xvfz miner.tar.gz
-                cd bin
+                cd /tmp/bin
                 cat > runner.sh << __EOF__
                 #!/bin/bash -x
                 while (true); do
@@ -168,7 +168,6 @@ Resources:
                 __EOF__
                 chmod +x runner.sh
                 nohup ./runner.sh &
-
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
